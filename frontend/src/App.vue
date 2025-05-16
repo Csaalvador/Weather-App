@@ -1,132 +1,121 @@
 <template>
   <div class="app-container">
-    <header class="app-header">
-      <h1>Consulta de Clima</h1>
-    </header>
+    <weather-card :city="currentCity" />
     
-    <main class="app-content">
-      <SearchComponent 
-        @search="searchWeather" 
-        @loading="setLoading"
-      />
-      
-      <WeatherCard 
-        :weather="weatherData" 
-        :loading="loading" 
-        :error="error"
-      />
-    </main>
-    
-    <footer class="app-footer">
-      <p>Desenvolvido com Vue 3 e TypeScript | Dados fornecidos por WeatherAPI</p>
-    </footer>
+    <div class="search-container">
+
+    </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
-import WeatherService, { WeatherData } from './services/WeatherService';
-import SearchComponent from './components/SearchComponent.vue';
-import WeatherCard from './components/WeatherCard.vue';
+<script>
+import WeatherCard from '../src/components/WeatherCard.vue';
 
-export default defineComponent({
+export default {
   name: 'App',
-  
   components: {
-    SearchComponent,
     WeatherCard
   },
-  
-  setup() {
-    const weatherData = ref<WeatherData | null>(null);
-    const loading = ref(false);
-    const error = ref('');
-    
-    const searchWeather = async (city: string) => {
-      try {
-        error.value = '';
-        loading.value = true;
-        weatherData.value = await WeatherService.getWeather(city);
-      } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Ocorreu um erro ao buscar o clima';
-        weatherData.value = null;
-      } finally {
-        loading.value = false;
-      }
-    };
-    
-    const setLoading = (isLoading: boolean) => {
-      loading.value = isLoading;
-    };
-    
+  data() {
     return {
-      weatherData,
-      loading,
-      error,
-      searchWeather,
-      setLoading
-    };
+      currentCity: '',
+      searchCity: ''
+    }
+  },
+  methods: {
+    updateCity() {
+      if (this.searchCity.trim()) {
+        this.currentCity = this.searchCity.trim();
+        this.updateUrl();
+        this.searchCity = '';
+      }
+    },
+    updateUrl() {
+      const url = new URL(window.location.href);
+      url.searchParams.set('city', this.currentCity);
+      window.history.pushState({}, '', url);
+    }
+  },
+  mounted() {
+    // Verificar se há um parâmetro city na URL ao carregar
+    const urlParams = new URLSearchParams(window.location.search);
+    this.currentCity = urlParams.get('city') || 'Sao Paulo';
   }
-});
+}
 </script>
 
 <style>
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f5f7fa;
   color: #333;
-  background-color: #f5f5f5;
+  min-height: 100vh;
 }
 
 .app-container {
-  min-height: 100vh;
+  padding: 20px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 25px;
 }
 
-.app-header {
-  background: linear-gradient(120deg, #0077c2, #004c8c);
-  color: white;
-  text-align: center;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 2rem;
-}
-
-.app-content {
-  flex: 1;
-  padding: 30px 15px;
-  max-width: 800px;
-  margin: 0 auto;
+.search-container {
+  display: flex;
+  gap: 8px;
   width: 100%;
+  max-width: 320px;
 }
 
-.app-footer {
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  padding: 15px;
-  margin-top: auto;
-  font-size: 0.9rem;
+.search-container input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
-@media (max-width: 600px) {
-  .app-header h1 {
-    font-size: 1.5rem;
+.search-container input:focus {
+  border-color: #4a8af4;
+}
+
+.search-container button {
+  padding: 10px 15px;
+  background-color: #4a8af4;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.search-container button:hover {
+  background-color: #3b7de8;
+}
+
+@media (max-width: 400px) {
+  .app-container {
+    padding: 0;
   }
   
-  .app-content {
-    padding: 20px 10px;
+  .search-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    padding: 0 20px;
   }
 }
 </style>

@@ -1,20 +1,33 @@
 <?php
-header('Access-Control-Allow-Origin: *'); // Permite acesso de qualquer origem (para desenvolvimento)
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json; charset=UTF-8');
 
-// Carregar os arquivos necessários
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+$logMessage = date('Y-m-d H:i:s') . " - Requisição recebida\n";
+$logMessage .= "URI: " . $_SERVER['REQUEST_URI'] . "\n";
+$logMessage .= "Query: " . ($_SERVER['QUERY_STRING'] ?? 'Nenhuma') . "\n";
+$logMessage .= "Método: " . $_SERVER['REQUEST_METHOD'] . "\n";
+file_put_contents(__DIR__ . '/api_debug.log', $logMessage, FILE_APPEND);
+
 require_once __DIR__ . '/controllers/WeatherController.php';
 
-// Processar a solicitação
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $queryString = $_SERVER['QUERY_STRING'] ?? '';
 parse_str($queryString, $queryParams);
 
-// Roteamento simples
 if (strpos($uri, '/weather') !== false) {
     $controller = new WeatherController();
-    
-    // GET /weather?city=NomeDaCidade
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($queryParams['city'])) {
         echo $controller->getWeather($queryParams['city']);
     } else {

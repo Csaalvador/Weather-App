@@ -8,12 +8,7 @@ class WeatherController {
         $this->weatherService = new WeatherService();
     }
     
-    /**
-     * Obtém informações do clima para uma cidade específica
-     * 
-     * @param string $city Nome da cidade
-     * @return string JSON com dados do clima
-     */
+    
     public function getWeather($city) {
         try {
             $weatherData = $this->weatherService->fetchWeatherData($city);
