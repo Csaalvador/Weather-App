@@ -10,13 +10,13 @@
 
 Instalando dependências do frontend
 Execute os seguintes comandos para instalar as dependências necessárias:
-**npm install**
-**npm install vue@3**
+- **npm install**
+- **npm install vue@3**
 
 
 Iniciando o servidor backend
 O backend é uma API PHP simples que deve ser executada em um servidor web. Use o servidor embutido do PHP para iniciá-lo:
-**php -S localhost:80 -t ./backend**
+- **php -S localhost:80 -t ./backend**
 
 
 Iniciando o aplicativo frontend
